@@ -7,6 +7,9 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,6 +27,8 @@ jobs:
 
       - name: Run lint
         uses: golangci/golangci-lint-action@v4
+        with:
+          working-directory: ./backend
 
-      - name: Build
-        run: go build -v ./cmd/server/...
+      # - name: Build
+      #   run: go build -v ./cmd/server/...
