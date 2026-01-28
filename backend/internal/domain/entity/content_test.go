@@ -81,7 +81,7 @@ func TestContent_HiddenGemScore(t *testing.T) {
 		content := Content{
 			WatchCount: 50,
 			ClickCount: 0,
-			Popularity: 50,
+			Popularity: 500,
 		}
 
 		_, err := content.HiddenGemScore()
