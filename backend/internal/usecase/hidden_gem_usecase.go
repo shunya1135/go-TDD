@@ -46,8 +46,8 @@ func (u *HiddenGemUsecase) GetHiddenGems(ctx context.Context, genre string) ([]*
 
 	// スコア順にソート
 	sort.Slice(validContents, func(i, j int) bool {
-		scoreI, _ := validContents[i].HiddenGemScore()
-		scoreJ, _ := validContents[j].HiddenGemScore()
+		scoreI := u.calcFinalScore(ctx, validContents[i])
+		scoreJ := u.calcFinalScore(ctx, validContents[j])
 		return scoreI > scoreJ
 	})
 
