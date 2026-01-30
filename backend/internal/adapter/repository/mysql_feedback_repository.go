@@ -19,14 +19,14 @@ func (r *MySQLFeedbackRepository) Save(ctx context.Context, fb *entity.Feedback)
 	// トランザクション開始
 	tx, err := r.db.BeginTx(ctx, nil)
 	if err != nil {
-		return nil
+		return err
 	}
 
 	defer tx.Rollback()
 
 	//1.feedbacksテーブルに保存
 	_, err = tx.ExecContext(ctx, `
-	INSET INTO feedbacks (user_id, series_id, feedback_type)
+	INSERT INTO feedbacks (user_id, series_id, feedback_type)
 	VALUES (?, ?, ?)
 	ON DUPLICATE KEY UPDATE created_at = NOW()`, fb.UserID, fb.SeriesID, fb.Type)
 
@@ -34,10 +34,10 @@ func (r *MySQLFeedbackRepository) Save(ctx context.Context, fb *entity.Feedback)
 		return err
 	}
 
-	//2.feedback_statusテーブルを更新
+	//2.feedback_statsテーブルを更新
 	column := feedbackTypeToColumn(fb.Type)
-	query := fmt.Sprintf(`INSRT INTO feedback_status (series_id, %s, total_count) VALUES (?, 1, 1)
-	ON DUPLICATEb KEY UPDATE %s = %s + 1, total_count = total_count +1`, column, column, column)
+	query := fmt.Sprintf(`INSERT INTO feedback_stats (series_id, %s, total_count) VALUES (?, 1, 1)
+	ON DUPLICATE KEY UPDATE %s = %s + 1, total_count = total_count +1`, column, column, column)
 
 	_, err = tx.ExecContext(ctx, query, fb.SeriesID)
 
