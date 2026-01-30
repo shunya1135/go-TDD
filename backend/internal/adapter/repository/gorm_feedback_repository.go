@@ -56,12 +56,12 @@ func (r *GormFeedbackRepository) Save(ctx context.Context, fb *entity.Feedback) 
 			Columns:   []clause.Column{{Name: "user_id"}, {Name: "series_id"}},
 			DoUpdates: clause.AssignmentColumns([]string{"feedback_type"}),
 		}).Create(&feedback).Error; err != nil {
-			return nil
+			return err
 		}
 
 		// 2. feedback_statsを更新
 		column := feedbackTypeToColumn(fb.Type)
-		stats := feedbackTypeToColumn(fb.Type)
+		stats := FeedbackStatsModel{SeriesID: fb.SeriesID}
 
 		// UPSERT: なければ作成、あれば更新
 		if err := tx.Clauses(clause.OnConflict{
