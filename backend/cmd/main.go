@@ -7,7 +7,6 @@ import (
 	"abema-discovery/backend/internal/infrastructure/router"
 	"abema-discovery/backend/internal/usecase"
 	"log"
-	"net/http"
 )
 
 func main() {
@@ -49,17 +48,24 @@ func main() {
 	feedbackUC := usecase.NewFeedbackUsecase(feedbackRepo)
 
 	// 4.Handler(Usecaseを渡す)
-	contentHandler := handler.NewHiddenGemHandler(contentUC)
+	// contentHandler := handler.NewHiddenGemHandler(contentUC)
 
-	feedbackHandler := handler.NewFeedbackHandler(feedbackUC)
+	// feedbackHandler := handler.NewFeedbackHandler(feedbackUC)
+
+	hiddenGemHandler := handler.NewGinHiddenGemHandler(contentUC)
+	feedbackHandler := handler.NewGinFeedbackHandler(feedbackUC)
 
 	// 5.Router(Handlerを渡す)
-	r := router.NewRouter(contentHandler, feedbackHandler)
+	// r := router.NewRouter(contentHandler, feedbackHandler)
+	r := router.NewGinRouter(hiddenGemHandler, feedbackHandler)
 
 	// 6.サーバー起動
-	log.Println("サーバー起動：http://localhost:8080")
-	log.Println("POST /api/v1/feedback でフィードバックを送信")
-	if err := http.ListenAndServe(":8080", r); err != nil {
-		log.Fatalf("サーバーエラー：%v", err)
-	}
+	// log.Println("サーバー起動：http://localhost:8080")
+	// log.Println("POST /api/v1/feedback でフィードバックを送信")
+	// if err := http.ListenAndServe(":8080", r); err != nil {
+	// 	log.Fatalf("サーバーエラー：%v", err)
+	// }
+
+	log.Println("サーバー起動： http://localhost:8080")
+	r.Run(":8080")
 }
