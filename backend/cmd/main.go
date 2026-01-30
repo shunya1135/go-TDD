@@ -67,5 +67,7 @@ func main() {
 	// }
 
 	log.Println("サーバー起動： http://localhost:8080")
-	r.Run(":8080")
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("サーバーエラー：%v", err)
+	}
 }
