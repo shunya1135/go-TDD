@@ -6,5 +6,5 @@ import (
 )
 
 type FeedbackRepository interface {
-	Save(ctx context.Context, fb *entity.Feedback)
+	Save(ctx context.Context, fb *entity.Feedback) error
 }
