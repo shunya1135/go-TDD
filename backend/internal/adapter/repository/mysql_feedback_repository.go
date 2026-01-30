@@ -22,7 +22,7 @@ func (r *MySQLFeedbackRepository) Save(ctx context.Context, fb *entity.Feedback)
 		return err
 	}
 
-	defer tx.Rollback()
+	defer func() { _ = tx.Rollback() }()
 
 	//1.feedbacksテーブルに保存
 	_, err = tx.ExecContext(ctx, `
