@@ -40,5 +40,7 @@ func main() {
 
 	// 6.サーバー起動
 	log.Println("サーバー起動：http://localhost:8080")
-	http.ListenAndServe(":8080", r)
+	if err := http.ListenAndServe(":8080", r); err != nil {
+		log.Fatalf("サーバーエラー：%v", err)
+	}
 }
