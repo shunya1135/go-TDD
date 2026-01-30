@@ -27,22 +27,22 @@ func main() {
 	defer db.Close()
 
 	// 2.Repository(DBを渡す)
-	repo := repository.NewSQLConnectRepository(db)
+	contentRepo := repository.NewSQLConnectRepository(db)
 
 	feedbackRepo := repository.NewMySQLFeedbackRepository(db)
 
 	// 3.Usecase(Repositoryを渡す)
-	uc := usecase.NewHiddenGemUsecase(repo)
+	contentUC := usecase.NewHiddenGemUsecase(contentRepo, feedbackRepo)
 
 	feedbackUC := usecase.NewFeedbackUsecase(feedbackRepo)
 
 	// 4.Handler(Usecaseを渡す)
-	h := handler.NewHiddenGemHandler(uc)
+	contentHandler := handler.NewHiddenGemHandler(contentUC)
 
 	feedbackHandler := handler.NewFeedbackHandler(feedbackUC)
 
 	// 5.Router(Handlerを渡す)
-	r := router.NewRouter(h, feedbackHandler)
+	r := router.NewRouter(contentHandler, feedbackHandler)
 
 	// 6.サーバー起動
 	log.Println("サーバー起動：http://localhost:8080")

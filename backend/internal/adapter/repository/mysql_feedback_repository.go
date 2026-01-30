@@ -70,3 +70,31 @@ func feedbackTypeToColumn(t entity.FeedbackType) string {
 	return "helpful_count"
 
 }
+
+func (r *MySQLFeedbackRepository) GetStats(ctx context.Context, seriesID string) (*entity.FeedbackStats, error) {
+	var stats entity.FeedbackStats
+
+	err := r.db.QueryRowContext(ctx, `SELECT series_id, helpful_count, not_helpful_count,
+	watched_count, completed_count, dropped_count, total_count
+	FROM feedback_stats
+	WHERE series_id = ?`,
+		seriesID).Scan(
+		&stats.SeriesID,
+		&stats.HelpfulCount,
+		&stats.NotHelpfulCount,
+		&stats.WatchedCount,
+		&stats.CompleteCount,
+		&stats.DroppedCount,
+		&stats.TotalCount,
+	)
+
+	if err == sql.ErrNoRows {
+		return &entity.FeedbackStats{SeriesID: seriesID}, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &stats, nil
+}

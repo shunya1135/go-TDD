@@ -15,6 +15,10 @@ func (m *mockFeedbackRepository) Save(ctx context.Context, fb *entity.Feedback) 
 	return m.err
 }
 
+func (m *mockFeedbackRepository) GetStats(ctx context.Context, seriesID string) (*entity.FeedbackStats, error) {
+	return &entity.FeedbackStats{}, nil
+}
+
 func TestFeedbackUsecase_SubmitFeedback(t *testing.T) {
 	t.Run("正常系_フィードバックを保存できる", func(t *testing.T) {
 		mock := &mockFeedbackRepository{}

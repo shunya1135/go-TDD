@@ -3,26 +3,32 @@ package usecase
 import (
 	"abema-discovery/backend/internal/domain/entity"
 	"abema-discovery/backend/internal/domain/repository"
+	"context"
 	"sort"
 )
 
 type HiddenGemUsecase struct {
-	repo repository.ContentRepository
+	contentRepo  repository.ContentRepository
+	feedbackRepo repository.FeedbackRepository
 }
 
-func NewHiddenGemUsecase(repo repository.ContentRepository) *HiddenGemUsecase {
-	return &HiddenGemUsecase{repo: repo}
+func NewHiddenGemUsecase(contentRepo repository.ContentRepository,
+	feedbackRepo repository.FeedbackRepository) *HiddenGemUsecase {
+	return &HiddenGemUsecase{
+		contentRepo:  contentRepo,
+		feedbackRepo: feedbackRepo,
+	}
 }
 
-func (u *HiddenGemUsecase) GetHiddenGems(genre string) ([]*entity.Content, error) {
+func (u *HiddenGemUsecase) GetHiddenGems(ctx context.Context, genre string) ([]*entity.Content, error) {
 	// 作品を取得
 	var contents []*entity.Content
 	var err error
 
 	if genre == "" {
-		contents, err = u.repo.FindAll()
+		contents, err = u.contentRepo.FindAll()
 	} else {
-		contents, err = u.repo.FindByGenre(genre)
+		contents, err = u.contentRepo.FindByGenre(genre)
 	}
 
 	if err != nil {
@@ -46,4 +52,17 @@ func (u *HiddenGemUsecase) GetHiddenGems(genre string) ([]*entity.Content, error
 	})
 
 	return validContents, nil
+}
+
+// FinalScore = BaseScore × FeedbackMultiplier
+func (u *HiddenGemUsecase) calcFinalScore(ctx context.Context, c *entity.Content) float64 {
+	baseScore, _ := c.HiddenGemScore()
+
+	// フィードバック集計を取得
+	stats, err := u.feedbackRepo.GetStats(ctx, c.ID)
+	if err != nil {
+		return baseScore //エラー補正なし
+	}
+
+	return baseScore * stats.Multiplier()
 }

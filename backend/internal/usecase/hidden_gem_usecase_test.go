@@ -2,9 +2,21 @@ package usecase
 
 import (
 	"abema-discovery/backend/internal/domain/entity"
+	"context"
 	"errors"
 	"testing"
 )
+
+// FeedbackRepositoryのMock
+type mockFeedbackRepo struct{}
+
+func (m *mockFeedbackRepo) Save(ctx context.Context, fb *entity.Feedback) error {
+	return nil
+}
+
+func (m *mockFeedbackRepo) GetStats(ctx context.Context, seriesID string) (*entity.FeedbackStats, error) {
+	return &entity.FeedbackStats{}, nil
+}
 
 func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 	// 正常系：スコア順に並び替えて返す
@@ -18,10 +30,10 @@ func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 			},
 		}
 
-		usecase := NewHiddenGemUsecase(mock)
+		usecase := NewHiddenGemUsecase(mock, &mockFeedbackRepo{})
 
 		// 実行
-		results, err := usecase.GetHiddenGems("")
+		results, err := usecase.GetHiddenGems(context.Background(), "")
 
 		// 検証
 		if err != nil {
@@ -48,9 +60,9 @@ func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 			},
 		}
 
-		usecase := NewHiddenGemUsecase(mock)
+		usecase := NewHiddenGemUsecase(mock, &mockFeedbackRepo{})
 
-		results, err := usecase.GetHiddenGems("animation")
+		results, err := usecase.GetHiddenGems(context.Background(), "animation")
 
 		if err != nil {
 			t.Errorf("エラーが発生しているはず：%v", err)
@@ -67,9 +79,9 @@ func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 			contents: []*entity.Content{},
 		}
 
-		usecase := NewHiddenGemUsecase(mock)
+		usecase := NewHiddenGemUsecase(mock, &mockFeedbackRepo{})
 
-		results, err := usecase.GetHiddenGems("")
+		results, err := usecase.GetHiddenGems(context.Background(), "")
 
 		if err != nil {
 			t.Errorf("エラーが発生しないはず：%v", err)
@@ -89,9 +101,9 @@ func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 			},
 		}
 
-		usecase := NewHiddenGemUsecase(mock)
+		usecase := NewHiddenGemUsecase(mock, &mockFeedbackRepo{})
 
-		results, err := usecase.GetHiddenGems("")
+		results, err := usecase.GetHiddenGems(context.Background(), "")
 
 		if err != nil {
 			t.Errorf("エラーが発生しないはず：%v", err)
@@ -112,9 +124,9 @@ func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 		mock := &mockContentRepository{
 			err: errors.New("DB接続エラー"),
 		}
-		usecase := NewHiddenGemUsecase(mock)
+		usecase := NewHiddenGemUsecase(mock, &mockFeedbackRepo{})
 
-		_, err := usecase.GetHiddenGems("")
+		_, err := usecase.GetHiddenGems(context.Background(), "")
 
 		if err == nil {
 			t.Error("エラーが発生するはず")
