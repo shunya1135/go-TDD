@@ -13,7 +13,7 @@ type SeriesModel struct {
 	GenreID    string `gorm:"column:genre_id"`
 	WatchCount int    `gorm:"column:watch_count"`
 	ClickCount int    `gorm:"column:click_count"`
-	Popularity int    `gorm:"column:click_count"`
+	Popularity int    `gorm:"column:popularity"`
 }
 
 func (SeriesModel) TableName() string {
