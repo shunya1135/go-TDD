@@ -13,19 +13,17 @@ func NewGinRouter(
 	r := gin.Default()
 
 	// API routes
-	api := r.Group("/api")
+	api := r.Group("/api/v1")
 	{
+		// Hidden Gems
 		api.GET("/hidden-gems", hiddenGemHandler.GetHiddenGems)
 
 		// Feedback CRUD
-		v1 := api.Group("/v1")
-		{
-			v1.POST("/feedback", feedbackHandler.SubmitFeedback)
-			v1.GET("/feedback", feedbackHandler.GetAllFeedbacks)
-			v1.GET("/feedback/:id", feedbackHandler.GetFeedbackByID)
-			v1.PUT("/feedback/:id", feedbackHandler.UpdateFeedback)
-			v1.DELETE("/feedback/:id", feedbackHandler.DeleteFeedback)
-		}
+		api.POST("/feedback", feedbackHandler.SubmitFeedback)
+		api.GET("/feedback", feedbackHandler.GetAllFeedbacks)
+		api.GET("/feedback/:id", feedbackHandler.GetFeedbackByID)
+		api.PUT("/feedback/:id", feedbackHandler.UpdateFeedback)
+		api.DELETE("/feedback/:id", feedbackHandler.DeleteFeedback)
 	}
 
 	return r
