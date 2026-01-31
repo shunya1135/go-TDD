@@ -6,6 +6,14 @@ import (
 )
 
 type FeedbackRepository interface {
+	// Create
 	Save(ctx context.Context, fb *entity.Feedback) error
+	// Read
+	FindAll(ctx context.Context) ([]*entity.Feedback, error)
+	FindByID(ctx context.Context, id int64) (*entity.Feedback, error)
 	GetStats(ctx context.Context, seriesID string) (*entity.FeedbackStats, error)
+	// Update
+	Update(ctx context.Context, fb *entity.Feedback) error
+	// Delete
+	Delete(ctx context.Context, id int64) error
 }

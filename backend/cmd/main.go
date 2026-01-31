@@ -20,7 +20,7 @@ func main() {
 	// })
 
 	// GORM版に変更
-	gormDB, err := database.NewMySQLConnection(database.Config{
+	gormDB, err := database.NewGormConnection(database.Config{
 		Host:     "127.0.0.1",
 		Port:     "3306",
 		User:     "abema",
@@ -32,15 +32,19 @@ func main() {
 		log.Fatalf("DB接続エラー：%v", err)
 	}
 
-	// defer db.Close()
-	defer gormDB.Close()
+	sqlDB, err := gormDB.DB()
+	if err != nil {
+		log.Fatalf("DB取得エラー：%v", err)
+	}
+	defer func() {
+		if err := sqlDB.Close(); err != nil {
+			log.Printf("DB Close エラー：%v", err)
+		}
+	}()
 
-	// 2.Repository(DBを渡す)
-	// contentRepo := repository.NewSQLConnectRepository(db)
-	contentRepo := repository.NewSQLConnectRepository(gormDB)
-
-	// feedbackRepo := repository.NewMySQLFeedbackRepository(db)
-	feedbackRepo := repository.NewMySQLFeedbackRepository(gormDB)
+	// 2.Repository(GORM版)
+	contentRepo := repository.NewGormContentRepository(gormDB)
+	feedbackRepo := repository.NewGormFeedbackRepository(gormDB)
 
 	// 3.Usecase(Repositoryを渡す)
 	contentUC := usecase.NewHiddenGemUsecase(contentRepo, feedbackRepo)

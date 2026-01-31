@@ -100,3 +100,52 @@ func (r *GormFeedbackRepository) GetStats(ctx context.Context, seriesID string) 
 		TotalCount:      model.TotalCount,
 	}, nil
 }
+
+// FindAll 全てのフィードバックを取得
+func (r *GormFeedbackRepository) FindAll(ctx context.Context) ([]*entity.Feedback, error) {
+	var models []FeedbackModel
+
+	if err := r.db.Find(&models).Error; err != nil {
+		return nil, err
+	}
+
+	feedbacks := make([]*entity.Feedback, len(models))
+	for i, m := range models {
+		feedbacks[i] = &entity.Feedback{
+			ID:       int64(m.ID),
+			UserID:   m.UserID,
+			SeriesID: m.SeriesID,
+			Type:     entity.FeedbackType(m.FeedbackType),
+		}
+	}
+
+	return feedbacks, nil
+}
+
+// FindByID IDでフィードバックを取得
+func (r *GormFeedbackRepository) FindByID(ctx context.Context, id int64) (*entity.Feedback, error) {
+	var model FeedbackModel
+
+	if err := r.db.First(&model, id).Error; err != nil {
+		return nil, err
+	}
+
+	return &entity.Feedback{
+		ID:       int64(model.ID),
+		UserID:   model.UserID,
+		SeriesID: model.SeriesID,
+		Type:     entity.FeedbackType(model.FeedbackType),
+	}, nil
+}
+
+// Update フィードバックを更新
+func (r *GormFeedbackRepository) Update(ctx context.Context, fb *entity.Feedback) error {
+	return r.db.Model(&FeedbackModel{}).
+		Where("id = ?", fb.ID).
+		Update("feedback_type", string(fb.Type)).Error
+}
+
+// Delete フィードバックを削除
+func (r *GormFeedbackRepository) Delete(ctx context.Context, id int64) error {
+	return r.db.Delete(&FeedbackModel{}, id).Error
+}

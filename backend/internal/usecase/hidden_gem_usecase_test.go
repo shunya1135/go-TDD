@@ -18,6 +18,22 @@ func (m *mockFeedbackRepo) GetStats(ctx context.Context, seriesID string) (*enti
 	return &entity.FeedbackStats{}, nil
 }
 
+func (m *mockFeedbackRepo) FindAll(ctx context.Context) ([]*entity.Feedback, error) {
+	return []*entity.Feedback{}, nil
+}
+
+func (m *mockFeedbackRepo) FindByID(ctx context.Context, id int64) (*entity.Feedback, error) {
+	return &entity.Feedback{}, nil
+}
+
+func (m *mockFeedbackRepo) Update(ctx context.Context, fb *entity.Feedback) error {
+	return nil
+}
+
+func (m *mockFeedbackRepo) Delete(ctx context.Context, id int64) error {
+	return nil
+}
+
 func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 	// 正常系：スコア順に並び替えて返す
 	t.Run("正常系_スコア順に並び替えて返す", func(t *testing.T) {
