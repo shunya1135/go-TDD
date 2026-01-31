@@ -72,16 +72,3 @@ func (u *HiddenGemUsecase) calcFinalScoreWithStats(c *entity.Content, statsMap m
 
 	return baseScore * stats.Multiplier()
 }
-
-// FinalScore = BaseScore × FeedbackMultiplier（後方互換性のため残す）
-func (u *HiddenGemUsecase) calcFinalScore(ctx context.Context, c *entity.Content) float64 {
-	baseScore, _ := c.HiddenGemScore()
-
-	// フィードバック集計を取得
-	stats, err := u.feedbackRepo.GetStats(ctx, c.ID)
-	if err != nil {
-		return baseScore //エラー補正なし
-	}
-
-	return baseScore * stats.Multiplier()
-}
