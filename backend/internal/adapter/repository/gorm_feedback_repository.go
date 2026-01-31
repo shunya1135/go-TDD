@@ -149,3 +149,28 @@ func (r *GormFeedbackRepository) Update(ctx context.Context, fb *entity.Feedback
 func (r *GormFeedbackRepository) Delete(ctx context.Context, id int64) error {
 	return r.db.Delete(&FeedbackModel{}, id).Error
 }
+
+// GetAllStats 全てのフィードバック集計を一括取得（N+1対策）
+func (r *GormFeedbackRepository) GetAllStats(ctx context.Context) (map[string]*entity.FeedbackStats, error) {
+	var models []FeedbackStatsModel
+
+	if err := r.db.Find(&models).Error; err != nil {
+		return nil, err
+	}
+
+	// series_id をキーにしたマップを作成
+	result := make(map[string]*entity.FeedbackStats)
+	for _, m := range models {
+		result[m.SeriesID] = &entity.FeedbackStats{
+			SeriesID:        m.SeriesID,
+			HelpfulCount:    m.HelpfulCount,
+			NotHelpfulCount: m.NotHelpfulCount,
+			WatchedCount:    m.WatchCount,
+			CompleteCount:   m.CompletedCount,
+			DroppedCount:    m.DroppedCount,
+			TotalCount:      m.TotalCount,
+		}
+	}
+
+	return result, nil
+}

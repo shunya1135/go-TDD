@@ -35,6 +35,12 @@ func (u *HiddenGemUsecase) GetHiddenGems(ctx context.Context, genre string) ([]*
 		return nil, err
 	}
 
+	// フィードバック集計を一括取得（N+1対策）
+	statsMap, err := u.feedbackRepo.GetAllStats(ctx)
+	if err != nil {
+		statsMap = make(map[string]*entity.FeedbackStats) // エラー時は空マップ
+	}
+
 	// スコア計算できる作品だけ抽出
 	var validContents []*entity.Content
 	for _, c := range contents {
@@ -46,15 +52,28 @@ func (u *HiddenGemUsecase) GetHiddenGems(ctx context.Context, genre string) ([]*
 
 	// スコア順にソート
 	sort.Slice(validContents, func(i, j int) bool {
-		scoreI := u.calcFinalScore(ctx, validContents[i])
-		scoreJ := u.calcFinalScore(ctx, validContents[j])
+		scoreI := u.calcFinalScoreWithStats(validContents[i], statsMap)
+		scoreJ := u.calcFinalScoreWithStats(validContents[j], statsMap)
 		return scoreI > scoreJ
 	})
 
 	return validContents, nil
 }
 
-// FinalScore = BaseScore × FeedbackMultiplier
+// FinalScore = BaseScore × FeedbackMultiplier（マップから取得）
+func (u *HiddenGemUsecase) calcFinalScoreWithStats(c *entity.Content, statsMap map[string]*entity.FeedbackStats) float64 {
+	baseScore, _ := c.HiddenGemScore()
+
+	// マップからフィードバック集計を取得
+	stats, ok := statsMap[c.ID]
+	if !ok {
+		return baseScore // 見つからなければ補正なし
+	}
+
+	return baseScore * stats.Multiplier()
+}
+
+// FinalScore = BaseScore × FeedbackMultiplier（後方互換性のため残す）
 func (u *HiddenGemUsecase) calcFinalScore(ctx context.Context, c *entity.Content) float64 {
 	baseScore, _ := c.HiddenGemScore()
 

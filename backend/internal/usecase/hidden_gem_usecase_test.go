@@ -34,6 +34,10 @@ func (m *mockFeedbackRepo) Delete(ctx context.Context, id int64) error {
 	return nil
 }
 
+func (m *mockFeedbackRepo) GetAllStats(ctx context.Context) (map[string]*entity.FeedbackStats, error) {
+	return make(map[string]*entity.FeedbackStats), nil
+}
+
 func TestHiddenGemUsecase_GetHiddenGems(t *testing.T) {
 	// 正常系：スコア順に並び替えて返す
 	t.Run("正常系_スコア順に並び替えて返す", func(t *testing.T) {

@@ -45,6 +45,10 @@ func (m *mockFeedbackRepository) Delete(ctx context.Context, id int64) error {
 	return m.deleteErr
 }
 
+func (m *mockFeedbackRepository) GetAllStats(ctx context.Context) (map[string]*entity.FeedbackStats, error) {
+	return make(map[string]*entity.FeedbackStats), m.err
+}
+
 func TestFeedbackUsecase_SubmitFeedback(t *testing.T) {
 	t.Run("正常系_フィードバックを保存できる", func(t *testing.T) {
 		mock := &mockFeedbackRepository{}
